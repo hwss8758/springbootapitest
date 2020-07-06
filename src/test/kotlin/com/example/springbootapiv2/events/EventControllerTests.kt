@@ -8,7 +8,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 @WebMvcTest // 슬라이싱테스
 class EventControllerTests {
 
@@ -17,9 +17,10 @@ class EventControllerTests {
 
     @Test
     fun createEvent() {
-        mockMvc.perform(post("/api/events/ ")
+        mockMvc.perform(post("/api/events")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON))
+                .andDo(print())
                 .andExpect(status().isCreated) // 201 응답이 create
     }
 
