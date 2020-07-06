@@ -1,10 +1,15 @@
 package com.example.springbootapiv2.events
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
 import org.springframework.hateoas.MediaTypes
+import org.springframework.hateoas.server.mvc.ControllerLinkBuilder
+import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -12,6 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import java.time.LocalDateTime
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 
 @WebMvcTest // 슬라이싱테스
 class EventControllerTests {
@@ -43,6 +49,7 @@ class EventControllerTests {
                 .andDo(print())
                 .andExpect(status().isCreated) // 201 응답이 create
                 .andExpect(jsonPath("id").exists())
+
     }
 
 }
