@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import java.net.URI
 
 @Controller
+// 클래스 단위로 requestmapping 거는 경우 아래의 주석 제거하면 됨
 //@RequestMapping(value = ["/api/events"], produces = [MediaTypes.HAL_JSON_VALUE])
 class EventController {
 
