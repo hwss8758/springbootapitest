@@ -1,8 +1,12 @@
 package com.example.springbootapiv2.events
 
 import java.time.LocalDateTime
+import javax.persistence.*
 
+@Entity
 data class Event(
+        @Id
+        @GeneratedValue
         var id: Int? = null,
         var name: String = "",
         var description: String = "",
@@ -16,6 +20,7 @@ data class Event(
         var limitOfEnrollment: Int? = null,
         var offline: Boolean = true,
         var free: Boolean = true,
+        @Enumerated(EnumType.STRING)
         var eventStatus: EventStatus = EventStatus.DRAFT) {
     override fun hashCode(): Int {
         return id!!
