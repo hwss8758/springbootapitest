@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.validation.Errors
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import java.net.URI
@@ -13,15 +14,22 @@ import java.net.URI
 class EventController {
 
     @Autowired
-    lateinit var eventRepository: EventRepository
+    private lateinit var eventRepository: EventRepository
 
     // EventConfiguration 클래스에서 bean으로 생성했음으로 의존성 주입이 가능함.
     @Autowired
-    lateinit var modelMapper: ModelMapper
+    private lateinit var modelMapper: ModelMapper
+
+    @Autowired
+    private lateinit var eventValidator: EventValidator
 
     @PostMapping("/api/events")
-    fun createEvent(@RequestBody eventDto: EventDto): ResponseEntity<Event> {
+    fun createEvent(@RequestBody eventDto: EventDto, errors: Errors): ResponseEntity<Event> {
 
+        eventValidator.validate(eventDto, errors)
+        if(errors.hasErrors()) {
+            return ResponseEntity.badRequest().build()
+        }
         // ModelMapper 사용하여 클래스 매
         val event: Event = modelMapper.map(eventDto, Event::class.java)
 
