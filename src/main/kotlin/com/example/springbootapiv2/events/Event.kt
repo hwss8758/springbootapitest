@@ -6,7 +6,7 @@ import javax.persistence.*
 @Entity
 data class Event(
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Int? = null,
         var name: String = "",
         var description: String = "",
