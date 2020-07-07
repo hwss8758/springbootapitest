@@ -40,7 +40,8 @@ class EventControllerTests {
                 basePrice = 100,
                 maxPrice = 200,
                 limitOfEnrollment = 100,
-                location = "강남역 D2 스타텁 팩토리")
+                location = "강남역 D2 스타텁 팩토리",
+                id = 100)
 
         mockMvc.perform(post("/api/events")
                 .contentType(MediaType.APPLICATION_JSON)
