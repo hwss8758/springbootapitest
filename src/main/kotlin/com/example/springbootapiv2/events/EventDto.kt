@@ -1,7 +1,6 @@
 package com.example.springbootapiv2.events
 
 import java.time.LocalDateTime
-import javax.persistence.Entity
 
 // 입력을 받을수 있는 값만 명시
 data class EventDto(var name: String,

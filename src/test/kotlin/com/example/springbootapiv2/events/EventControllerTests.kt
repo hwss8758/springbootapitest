@@ -2,14 +2,10 @@ package com.example.springbootapiv2.events
 
 import com.example.springbootapiv2.common.TestDescription
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.hateoas.MediaTypes
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -85,7 +81,7 @@ class EventControllerTests {
     }
 
     @Test
-    @TestDescription("eventDto class 프로퍼티 검증 테스트")
+    @TestDescription("eventDto class 프로퍼티 검증 테스")
     fun createEvent_Bad_Request_Wrong_Input() {
 
         var eventDto: EventDto = EventDto(name = "spring",
