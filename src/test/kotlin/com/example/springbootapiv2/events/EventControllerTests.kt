@@ -1,5 +1,6 @@
 package com.example.springbootapiv2.events
 
+import com.example.springbootapiv2.common.TestDescription
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
@@ -29,6 +30,7 @@ class EventControllerTests {
     lateinit var objectMapper: ObjectMapper // content를 JSON으로 변경하기 위해서 사용
 
     @Test
+    @TestDescription("정상동작 테스트")
     fun createEvent() {
 
         var eventDto: EventDto = EventDto(name = "spring",
@@ -56,6 +58,7 @@ class EventControllerTests {
     }
 
     @Test
+    @TestDescription("event class 사용하여 입력할 경우 에러 확인")
     fun createEventBadRequest() {
 
         var event: Event = Event(name = "spring",
@@ -82,6 +85,7 @@ class EventControllerTests {
     }
 
     @Test
+    @TestDescription("eventDto class 프로퍼티 검증 테스트")
     fun createEvent_Bad_Request_Wrong_Input() {
 
         var eventDto: EventDto = EventDto(name = "spring",
