@@ -24,11 +24,12 @@ class EventController {
     private lateinit var eventValidator: EventValidator
 
     @PostMapping("/api/events")
-    fun createEvent(@RequestBody eventDto: EventDto, errors: Errors): ResponseEntity<Event> {
+    fun createEvent(@RequestBody eventDto: EventDto, errors: Errors): ResponseEntity<Any> {
 
         eventValidator.validate(eventDto, errors)
-        if(errors.hasErrors()) {
-            return ResponseEntity.badRequest().build()
+        if (errors.hasErrors()) {
+            //return ResponseEntity.badRequest().build()
+            return ResponseEntity.badRequest().body(errors)
         }
         // ModelMapper 사용하여 클래스 매
         val event: Event = modelMapper.map(eventDto, Event::class.java)

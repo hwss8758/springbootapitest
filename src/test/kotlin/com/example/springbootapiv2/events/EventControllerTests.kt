@@ -34,7 +34,7 @@ class EventControllerTests {
                 beginEnrollmentDateTime = LocalDateTime.of(2018, 11, 23, 14, 21),
                 closeEnrollmentDateTime = LocalDateTime.of(2018, 11, 24, 14, 21),
                 beginEventDateTime = LocalDateTime.of(2018, 11, 28, 14, 21),
-                endEventDateTime = LocalDateTime.of(2018, 11, 26, 14, 21),
+                endEventDateTime = LocalDateTime.of(2018, 11, 29, 14, 21),
                 basePrice = 100,
                 maxPrice = 200,
                 limitOfEnrollment = 100,
@@ -101,6 +101,11 @@ class EventControllerTests {
                 .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists())
+                .andExpect(jsonPath("$[0].rejectedValue").exists())
     }
 
 }
