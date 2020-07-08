@@ -2,6 +2,7 @@ package com.example.springbootapiv2.events
 
 import com.example.springbootapiv2.common.TestDescription
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -49,8 +50,9 @@ class EventControllerTests {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
-//                .andExpect(jsonPath("id").value(Matchers.not(100)))
-//                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("offline").value(true))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name))
     }
 
     @Test
@@ -106,6 +108,61 @@ class EventControllerTests {
                 .andExpect(jsonPath("$[0].defaultMessage").exists())
                 .andExpect(jsonPath("$[0].code").exists())
                 .andExpect(jsonPath("$[0].rejectedValue").exists())
+    }
+
+    @Test
+    fun testFree() {
+
+        // given
+        var event: Event = Event(basePrice = 0,
+                maxPrice = 0)
+
+        // when
+        event.update()
+
+        //then
+        assertThat(event.free).isTrue()
+
+        // given
+        event = Event(basePrice = 100,
+                maxPrice = 0)
+
+        // when
+        event.update()
+
+        //then
+        assertThat(event.free).isFalse()
+
+        // given
+        event = Event(basePrice = 0,
+                maxPrice = 100)
+
+        // when
+        event.update()
+
+        //then
+        assertThat(event.free).isFalse()
+    }
+
+    @Test
+    fun testOffline() {
+        // given
+        var event: Event = Event(location = "강남역")
+
+        // when
+        event.update()
+
+        //then
+        assertThat(event.offline).isTrue()
+
+        // given
+        event = Event()
+
+        // when
+        event.update()
+
+        //then
+        assertThat(event.offline).isFalse()
     }
 
 }

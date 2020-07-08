@@ -31,8 +31,11 @@ class EventController {
             //return ResponseEntity.badRequest().build()
             return ResponseEntity.badRequest().body(errors)
         }
-        // ModelMapper 사용하여 클래스 매
+        // ModelMapper 사용하여 클래스 매핑
         val event: Event = modelMapper.map(eventDto, Event::class.java)
+
+        // free 항목 설정
+        event.update()
 
         val eventId = eventRepository.save(event).id!!
 
@@ -46,6 +49,6 @@ class EventController {
                 .withSelfRel()
                 .toUri()
 
-        return ResponseEntity.created(createdUri).body(event)
+        return ResponseEntity.created(createdUri).body(newEvent)
     }
 }

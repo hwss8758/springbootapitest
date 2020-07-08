@@ -19,10 +19,22 @@ data class Event(
         var maxPrice: Int? = null, // (optional)
         var limitOfEnrollment: Int? = null,
         var offline: Boolean = true,
-        var free: Boolean = true,
+        var free: Boolean = false,
         @Enumerated(EnumType.STRING)
         var eventStatus: EventStatus = EventStatus.DRAFT) {
     override fun hashCode(): Int {
         return id!!
+    }
+
+    fun update() {
+        if(this.basePrice == 0 &&
+                this.maxPrice == 0) {
+            this.free = true
+        } else {
+            this.free = false
+        }
+
+        this.offline = !(this.location.isEmpty() || this.location == null)
+
     }
 }
