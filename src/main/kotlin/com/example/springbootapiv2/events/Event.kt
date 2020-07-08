@@ -27,14 +27,20 @@ data class Event(
     }
 
     fun update() {
-        if(this.basePrice == 0 &&
+        if (this.basePrice == 0 &&
                 this.maxPrice == 0) {
             this.free = true
         } else {
             this.free = false
         }
 
-        this.offline = !(this.location.isEmpty() || this.location == null)
+        if (this.location.isEmpty() ||
+                this.location == null) {
+            this.offline = false
+        } else {
+            this.offline = true
+        }
+
 
     }
 }
