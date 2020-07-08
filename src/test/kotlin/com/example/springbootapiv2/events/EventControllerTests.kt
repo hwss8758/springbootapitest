@@ -110,59 +110,5 @@ class EventControllerTests {
                 .andExpect(jsonPath("$[0].rejectedValue").exists())
     }
 
-    @Test
-    fun testFree() {
-
-        // given
-        var event: Event = Event(basePrice = 0,
-                maxPrice = 0)
-
-        // when
-        event.update()
-
-        //then
-        assertThat(event.free).isTrue()
-
-        // given
-        event = Event(basePrice = 100,
-                maxPrice = 0)
-
-        // when
-        event.update()
-
-        //then
-        assertThat(event.free).isFalse()
-
-        // given
-        event = Event(basePrice = 0,
-                maxPrice = 100)
-
-        // when
-        event.update()
-
-        //then
-        assertThat(event.free).isFalse()
-    }
-
-    @Test
-    fun testOffline() {
-        // given
-        var event: Event = Event(location = "강남역")
-
-        // when
-        event.update()
-
-        //then
-        assertThat(event.offline).isTrue()
-
-        // given
-        event = Event()
-
-        // when
-        event.update()
-
-        //then
-        assertThat(event.offline).isFalse()
-    }
 
 }
