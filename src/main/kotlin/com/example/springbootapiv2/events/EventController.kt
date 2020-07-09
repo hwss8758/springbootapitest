@@ -2,6 +2,7 @@ package com.example.springbootapiv2.events
 
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.hateoas.Link
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -56,6 +57,7 @@ class EventController {
         eventResource.add(baseLink.withRel("query-events"))
         eventResource.add(baseLink.withSelfRel())
         eventResource.add(baseLink.withRel("update-event"))
+        eventResource.add(Link.of("http://localhost:8080/docs/index.html").withRel("profile"))
 
         return ResponseEntity.created(createdUri).body(eventResource)
     }
