@@ -18,6 +18,7 @@ import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithR
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
@@ -28,6 +29,7 @@ import java.time.LocalDateTime
 @AutoConfigureMockMvc // springBootTest 어노테이션을 쓰면서 MockMvc를 사용하려고 하면 @AutoConfigureMockMvc를 사용하야한다.
 @AutoConfigureRestDocs // springRestDocs를 사용하기 위한 어노테이션
 @Import(EventRestDocsMockMvcConfigurationCustomizer::class) // restDocs를 이쁘게 보이도록 해당 클래스 임포트해준다.
+@ActiveProfiles("test")
 class EventControllerTests {
 
     @Autowired
