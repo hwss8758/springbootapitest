@@ -13,7 +13,11 @@ import org.springframework.context.annotation.Import
 import org.springframework.hateoas.MediaTypes
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.restdocs.headers.HeaderDocumentation.*
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
@@ -23,7 +27,7 @@ import java.time.LocalDateTime
 @SpringBootTest
 @AutoConfigureMockMvc // springBootTest 어노테이션을 쓰면서 MockMvc를 사용하려고 하면 @AutoConfigureMockMvc를 사용하야한다.
 @AutoConfigureRestDocs // springRestDocs를 사용하기 위한 어노테이션
-@Import(EventRestDocsMockMvcConfigurationCustomizer::class)
+@Import(EventRestDocsMockMvcConfigurationCustomizer::class) // restDocs를 이쁘게 보이도록 해당 클래스 임포트해준다.
 class EventControllerTests {
 
     @Autowired
@@ -62,7 +66,75 @@ class EventControllerTests {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.query-events").exists())
                 .andExpect(jsonPath("_links.update-event").exists())
-                .andDo(document("create-event"))
+                // restDocs 생성 => andDo(document())
+                .andDo(document("create-event",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("query-events").description("link to query events"),
+                                linkWithRel("update-event").description("link to update an existing")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                        ),
+                        requestFields(
+                                fieldWithPath("name").description("name of newevent"),
+                                fieldWithPath("description").description("description of newevent"),
+                                fieldWithPath("beginEnrollmentDateTime").description("beginEnrollmentDateTime of newevent"),
+                                fieldWithPath("closeEnrollmentDateTime").description("closeEnrollmentDateTime of newevent"),
+                                fieldWithPath("beginEventDateTime").description("beginEventDateTime of newevent"),
+                                fieldWithPath("endEventDateTime").description("endEventDateTime of newevent"),
+                                fieldWithPath("location").description("location of newevent"),
+                                fieldWithPath("basePrice").description("basePrice of newevent"),
+                                fieldWithPath("maxPrice").description("maxPrice of newevent"),
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of newevent")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION).description("LOCATION header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                        ),
+                        // 문서의 일부분만 생성할 경우 relaxedResponseFields 사용(relaxed prefix 추가): 아래의 주석 예제 참고
+                        // 문서 전체를 생성 responseFields 사용
+                        responseFields(
+                                fieldWithPath("id").description("identifier of newevent"),
+                                fieldWithPath("name").description("name of newevent"),
+                                fieldWithPath("description").description("description of newevent"),
+                                fieldWithPath("beginEnrollmentDateTime").description("beginEnrollmentDateTime of newevent"),
+                                fieldWithPath("closeEnrollmentDateTime").description("closeEnrollmentDateTime of newevent"),
+                                fieldWithPath("beginEventDateTime").description("beginEventDateTime of newevent"),
+                                fieldWithPath("endEventDateTime").description("endEventDateTime of newevent"),
+                                fieldWithPath("location").description("location of newevent"),
+                                fieldWithPath("basePrice").description("basePrice of newevent"),
+                                fieldWithPath("maxPrice").description("maxPrice of newevent"),
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of newevent"),
+                                fieldWithPath("free").description("free or not"),
+                                fieldWithPath("offline").description("offline or not"),
+                                fieldWithPath("eventStatus").description("event status"),
+                                fieldWithPath("_links.self.href").description("link to self"),
+                                fieldWithPath("_links.query-events.href").description("link to query event list"),
+                                fieldWithPath("_links.update-event.href").description("link to update event list")
+                        )
+                        //                                relaxedResponseFields(
+                        //                                fieldWithPath("id").description("identifier of newevent"),
+                        //                        fieldWithPath("name").description("name of newevent"),
+                        //                        fieldWithPath("description").description("description of newevent"),
+                        //                        fieldWithPath("beginEnrollmentDateTime").description("beginEnrollmentDateTime of newevent"),
+                        //                        fieldWithPath("closeEnrollmentDateTime").description("closeEnrollmentDateTime of newevent"),
+                        //                        fieldWithPath("beginEventDateTime").description("beginEventDateTime of newevent"),
+                        //                        fieldWithPath("endEventDateTime").description("endEventDateTime of newevent"),
+                        //                        fieldWithPath("location").description("location of newevent"),
+                        //                        fieldWithPath("basePrice").description("basePrice of newevent"),
+                        //                        fieldWithPath("maxPrice").description("maxPrice of newevent"),
+                        //                        fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of newevent"),
+                        //                        fieldWithPath("free").description("free or not"),
+                        //                        fieldWithPath("offline").description("offline or not"),
+                        //                        fieldWithPath("eventStatus").description("event status"),
+                        //                        fieldWithPath("_links.self.href").description("link to self"),
+                        //                        fieldWithPath("_links.query-events.href").description("link to query event list"),
+                        //                        fieldWithPath("_links.update-event.href").description("link to update event list")
+                        //                )
+                )
+                )
     }
 
     @Test
