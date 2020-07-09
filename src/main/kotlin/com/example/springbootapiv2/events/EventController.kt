@@ -50,7 +50,7 @@ class EventController {
 
         val createdUri: URI = baseLink.toUri()
 
-        // href 내역 추가
+        // spring hateoas 적용하기 위해서 href 내역 추가
         val eventResource: EventResource = EventResource(newEvent)
 
         eventResource.add(baseLink.withRel("query-events"))
