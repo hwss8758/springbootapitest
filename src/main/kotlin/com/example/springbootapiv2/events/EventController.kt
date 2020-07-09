@@ -42,13 +42,21 @@ class EventController {
         // eventRepository.findById(eventId)의 리턴값이 Optional임으로 클래스 객체를 받으려면 get()함수가 필요
         val newEvent: Event = eventRepository.findById(eventId).get()
 
-        var createdUri: URI = WebMvcLinkBuilder.linkTo(EventController::class.java)
+        // baseLink 생성
+        val baseLink: WebMvcLinkBuilder = WebMvcLinkBuilder.linkTo(EventController::class.java)
                 .slash("api")
                 .slash("events")
                 .slash(newEvent.id)
-                .withSelfRel()
-                .toUri()
 
-        return ResponseEntity.created(createdUri).body(newEvent)
+        val createdUri: URI = baseLink.toUri()
+
+        // href 내역 추가
+        val eventResource: EventResource = EventResource(newEvent)
+
+        eventResource.add(baseLink.withRel("query-events"))
+        eventResource.add(baseLink.withSelfRel())
+        eventResource.add(baseLink.withRel("update-event"))
+
+        return ResponseEntity.created(createdUri).body(eventResource)
     }
 }
