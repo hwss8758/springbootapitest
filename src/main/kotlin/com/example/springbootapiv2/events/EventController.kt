@@ -1,5 +1,6 @@
 package com.example.springbootapiv2.events
 
+import com.example.springbootapiv2.common.ErrorsResource
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.Link
@@ -27,10 +28,13 @@ class EventController {
     @PostMapping("/api/events")
     fun createEvent(@RequestBody eventDto: EventDto, errors: Errors): ResponseEntity<Any> {
 
+        if (errors.hasErrors()) {
+            return badRequest(errors)
+        }
+
         eventValidator.validate(eventDto, errors)
         if (errors.hasErrors()) {
-            //return ResponseEntity.badRequest().build()
-            return ResponseEntity.badRequest().body(errors)
+            return badRequest(errors)
         }
         // ModelMapper 사용하여 클래스 매핑
         val event: Event = modelMapper.map(eventDto, Event::class.java)
@@ -60,5 +64,9 @@ class EventController {
         eventResource.add(Link.of("http://localhost:8080/docs/index.html").withRel("profile"))
 
         return ResponseEntity.created(createdUri).body(eventResource)
+    }
+
+    private fun badRequest(errors: Errors): ResponseEntity<Any> {
+        return ResponseEntity.badRequest().body(ErrorsResource(errors))
     }
 }
