@@ -3,7 +3,11 @@ package com.example.springbootapiv2.events
 import com.example.springbootapiv2.common.EventRestDocsMockMvcConfigurationCustomizer
 import com.example.springbootapiv2.common.TestDescription
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.tomcat.util.file.Matcher
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
+import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -21,6 +25,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.time.LocalDateTime
@@ -41,6 +46,9 @@ class EventControllerTests {
 
     @Autowired
     lateinit var eventRepository: EventRepository
+
+    @Autowired
+    lateinit var modelMapper: ModelMapper
 
     @Test
     @TestDescription("정상동작 테스트")
@@ -246,8 +254,81 @@ class EventControllerTests {
                 .andExpect(status().isNotFound)
     }
 
+    @Test
+    @TestDescription("이벤트를 정상적으로 수정하기")
+    fun updateEventTest() {
+        //given
+        val eventName = "Updated Event"
+        val event: Event = generateEvent(200)
+        println("check event : " + event)
+        val eventDto: EventDto = modelMapper.map(event, EventDto::class.java)
+        eventDto.name = eventName
+
+        //when & then
+        mockMvc.perform(put("/api/events/{id}", event.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("name").value(eventName))
+                .andExpect(jsonPath("_links.self").exists())
+                .andDo(document("update-event"))
+    }
+
+    @Test
+    @TestDescription("입력값이 잘못된 경우 이벤트 수정 실패")
+    fun updateEventErrorTest() {
+        //given
+        val eventName = "Updated Event"
+        val event: Event = generateEvent(200)
+        val eventDto: EventDto = modelMapper.map(event, EventDto::class.java)
+        eventDto.name = eventName
+        eventDto.basePrice = 20000
+        eventDto.maxPrice = 1000
+
+        //when & then
+        mockMvc.perform(put("/api/events/{id}", event.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @TestDescription("존재하지 않는 이벤트 수정 실패")
+    fun updateEventErrorTest404() {
+        //given
+        val eventName = "Updated Event"
+        val event: Event = generateEvent(200)
+        val eventDto: EventDto = modelMapper.map(event, EventDto::class.java)
+        eventDto.name = eventName
+
+        //when & then
+        mockMvc.perform(put("/api/events/1123122")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isNotFound)
+    }
+
     private fun generateEvent(index: Int): Event {
-        val event: Event = Event(name = "event$index", description = "test Event")
+        val event: Event = Event(name = "spring$index",
+                description = "REST API Development with Spring",
+                beginEnrollmentDateTime = LocalDateTime.of(2018, 11, 23, 14, 21),
+                closeEnrollmentDateTime = LocalDateTime.of(2018, 11, 24, 14, 21),
+                beginEventDateTime = LocalDateTime.of(2018, 11, 28, 14, 21),
+                endEventDateTime = LocalDateTime.of(2018, 11, 29, 14, 21),
+                basePrice = 100,
+                maxPrice = 200,
+                limitOfEnrollment = 100,
+                location = "강남역 D2 스타텁 팩토리",
+                id = 100,
+                free = true,
+                offline = false,
+                eventStatus = EventStatus.PUBLISHED)
         return eventRepository.save(event)
     }
 

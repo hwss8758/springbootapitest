@@ -1,22 +1,17 @@
 package com.example.springbootapiv2.events
 
 import com.example.springbootapiv2.common.ErrorsResource
-import com.sun.xml.internal.messaging.saaj.soap.ver1_1.FaultElement1_1Impl
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PagedResourcesAssembler
-import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.Link
-import org.springframework.hateoas.PagedModel
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.*
 
@@ -79,7 +74,7 @@ class EventController {
     fun queryEvents(pageable: Pageable, assembler: PagedResourcesAssembler<Event>): ResponseEntity<Any> {
 
         val page = eventRepository.findAll(pageable)
-        val pageResource = assembler.toModel(page){e -> EventResourcePaged(e)}
+        val pageResource = assembler.toModel(page) { e -> EventResourcePaged(e) }
         pageResource.add(Link.of("http://localhost:8080/docs/index.html#resources-events-list").withRel("profile"))
 
         return ResponseEntity.ok(pageResource)
@@ -89,7 +84,7 @@ class EventController {
     fun getEvent(@PathVariable id: Int): ResponseEntity<Any> {
         val optionalEvent: Optional<Event> = eventRepository.findById(id)
 
-        if(!optionalEvent.isPresent) {
+        if (!optionalEvent.isPresent) {
             return ResponseEntity.notFound().build()
         }
 
@@ -97,6 +92,34 @@ class EventController {
         val eventResource = EventResource(event)
 
         eventResource.add(Link.of("http://localhost:8080/docs/index.html#resources-events-get").withRel("profile"))
+
+        return ResponseEntity.ok(eventResource)
+    }
+
+    @PutMapping("/api/events/{id}")
+    fun updateEvent(@PathVariable id: Int,
+                    @RequestBody @Validated eventDto: EventDto,
+                    errors: Errors): ResponseEntity<Any> {
+        val optionalEvent: Optional<Event> = eventRepository.findById(id)
+        if (!optionalEvent.isPresent) {
+            return ResponseEntity.notFound().build()
+        }
+
+        if(errors.hasErrors()) {
+            return badRequest(errors)
+        }
+
+        eventValidator.validate(eventDto, errors)
+        if (errors.hasErrors()) {
+            return badRequest(errors)
+        }
+
+        val existingEvent: Event = optionalEvent.get()
+        modelMapper.map(eventDto, existingEvent)
+        val savedEvent = eventRepository.save(existingEvent)
+
+        val eventResource = EventResource(savedEvent)
+        eventResource.add(Link.of("http://localhost:8080/docs/index.html#resources-events-update").withRel("profile"))
 
         return ResponseEntity.ok(eventResource)
     }

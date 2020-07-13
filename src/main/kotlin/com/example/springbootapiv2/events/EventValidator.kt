@@ -7,7 +7,7 @@ import org.springframework.validation.Errors
 class EventValidator {
 
     fun validate(eventDto: EventDto, errors: Errors) {
-        if (eventDto.basePrice > eventDto.maxPrice && eventDto.maxPrice != 0) {
+        if (eventDto.basePrice!! > eventDto.maxPrice!! && eventDto.maxPrice!! != 0) {
 
             //----------------------------------------------------------------------------------------
             // 에러에는 2가지 설정 방법이 있음
