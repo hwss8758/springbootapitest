@@ -1,5 +1,6 @@
 package com.example.springbootapiv2.events
 
+import com.example.springbootapiv2.accounts.Accounts
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -21,7 +22,9 @@ data class Event(
         var offline: Boolean = true,
         var free: Boolean = false,
         @Enumerated(EnumType.STRING)
-        var eventStatus: EventStatus = EventStatus.DRAFT) {
+        var eventStatus: EventStatus = EventStatus.DRAFT,
+        @ManyToOne
+        private var manager: Accounts? = null) {
     override fun hashCode(): Int {
         return id!!
     }
@@ -31,7 +34,5 @@ data class Event(
                 this.maxPrice == 0
 
         this.offline = !(this.location.isEmpty())
-
-
     }
 }
