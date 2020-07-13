@@ -3,7 +3,6 @@ package com.example.springbootapiv2.events
 import com.example.springbootapiv2.common.EventRestDocsMockMvcConfigurationCustomizer
 import com.example.springbootapiv2.common.TestDescription
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
@@ -17,13 +16,16 @@ import org.springframework.restdocs.headers.HeaderDocumentation.*
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.time.LocalDateTime
+import java.util.stream.IntStream
 
 @SpringBootTest
 @AutoConfigureMockMvc // springBootTest 어노테이션을 쓰면서 MockMvc를 사용하려고 하면 @AutoConfigureMockMvc를 사용하야한다.
@@ -37,6 +39,9 @@ class EventControllerTests {
 
     @Autowired
     lateinit var objectMapper: ObjectMapper // content를 JSON으로 변경하기 위해서 사용
+
+    @Autowired
+    lateinit var eventRepository: EventRepository
 
     @Test
     @TestDescription("정상동작 테스트")
@@ -195,6 +200,33 @@ class EventControllerTests {
                 .andExpect(jsonPath("errors[0].code").exists())
                 .andExpect(jsonPath("errors[0].rejectedValue").exists())
                 .andExpect(jsonPath("_links.index").exists())
+    }
+
+    @Test
+    @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    fun queryEventTest() {
+        IntStream.range(0, 30).forEach {
+            generateEvent(it)
+        }
+
+        mockMvc.perform(get("/api/events")
+                .param("page", "1")
+                .param("size", "10")
+                .param("sort", "id,DESC"))
+                .andDo(print())
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("_embedded.eventResourcePagedList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("query-events"))
+    }
+
+    private fun generateEvent(index: Int) {
+        var event: Event = Event(name = "event$index",
+                description = "test Event")
+
+        this.eventRepository.save(event)
     }
 
 

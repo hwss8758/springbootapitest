@@ -3,14 +3,20 @@ package com.example.springbootapiv2.events
 import com.example.springbootapiv2.common.ErrorsResource
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedResourcesAssembler
+import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.Link
+import org.springframework.hateoas.PagedModel
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import java.net.URI
+
 
 @Controller
 class EventController {
@@ -58,19 +64,26 @@ class EventController {
         // spring hateoas 적용하기 위해서 href 내역 추가
         val eventResource: EventResource = EventResource(newEvent)
 
-        println("eventResource1 : " + eventResource)
-
         eventResource.add(baseLink.withRel("query-events"))
         //eventResource.add(baseLink.withSelfRel())
         eventResource.add(baseLink.withRel("update-event"))
         eventResource.add(Link.of("http://localhost:8080/docs/index.html").withRel("profile"))
 
-        println("eventResource2 : " + eventResource)
-
         return ResponseEntity.created(createdUri).body(eventResource)
+    }
+
+    @GetMapping("/api/events")
+    fun queryEvents(pageable: Pageable, assembler: PagedResourcesAssembler<Event>): ResponseEntity<Any> {
+
+        val page = eventRepository.findAll(pageable)
+        val pageResource = assembler.toModel(page){e -> EventResourcePaged(e)}
+        pageResource.add(Link.of("http://localhost:8080/docs/index.html#resources-events-list").withRel("profile"))
+
+        return ResponseEntity.ok(pageResource)
     }
 
     private fun badRequest(errors: Errors): ResponseEntity<Any> {
         return ResponseEntity.badRequest().body(ErrorsResource(errors))
     }
+
 }
