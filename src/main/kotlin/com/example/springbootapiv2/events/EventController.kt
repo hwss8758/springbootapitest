@@ -58,10 +58,14 @@ class EventController {
         // spring hateoas 적용하기 위해서 href 내역 추가
         val eventResource: EventResource = EventResource(newEvent)
 
+        println("eventResource1 : " + eventResource)
+
         eventResource.add(baseLink.withRel("query-events"))
-        eventResource.add(baseLink.withSelfRel())
+        //eventResource.add(baseLink.withSelfRel())
         eventResource.add(baseLink.withRel("update-event"))
         eventResource.add(Link.of("http://localhost:8080/docs/index.html").withRel("profile"))
+
+        println("eventResource2 : " + eventResource)
 
         return ResponseEntity.created(createdUri).body(eventResource)
     }
