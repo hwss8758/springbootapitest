@@ -20,7 +20,6 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
@@ -222,11 +221,34 @@ class EventControllerTests {
                 .andDo(document("query-events"))
     }
 
-    private fun generateEvent(index: Int) {
-        var event: Event = Event(name = "event$index",
-                description = "test Event")
+    @Test
+    @TestDescription("기존의 Event 하나 조회하기")
+    fun getEventTest() {
+        //Given
+        val event = generateEvent(100)
 
-        this.eventRepository.save(event)
+        //when&then
+        mockMvc.perform(get("/api/events/{id}", event.id))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("get-an-event"))
+    }
+
+    @Test
+    @TestDescription("없는 Event 하나 조회하여 404 응답받기")
+    fun getEventTest404() {
+
+        //when&then
+        mockMvc.perform(get("/api/events/1188"))
+                .andExpect(status().isNotFound)
+    }
+
+    private fun generateEvent(index: Int): Event {
+        val event: Event = Event(name = "event$index", description = "test Event")
+        return eventRepository.save(event)
     }
 
 

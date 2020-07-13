@@ -1,6 +1,7 @@
 package com.example.springbootapiv2.events
 
 import com.example.springbootapiv2.common.ErrorsResource
+import com.sun.xml.internal.messaging.saaj.soap.ver1_1.FaultElement1_1Impl
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -13,9 +14,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import java.net.URI
+import java.util.*
 
 
 @Controller
@@ -80,6 +83,22 @@ class EventController {
         pageResource.add(Link.of("http://localhost:8080/docs/index.html#resources-events-list").withRel("profile"))
 
         return ResponseEntity.ok(pageResource)
+    }
+
+    @GetMapping("/api/events/{id}")
+    fun getEvent(@PathVariable id: Int): ResponseEntity<Any> {
+        val optionalEvent: Optional<Event> = eventRepository.findById(id)
+
+        if(!optionalEvent.isPresent) {
+            return ResponseEntity.notFound().build()
+        }
+
+        val event: Event = optionalEvent.get()
+        val eventResource = EventResource(event)
+
+        eventResource.add(Link.of("http://localhost:8080/docs/index.html#resources-events-get").withRel("profile"))
+
+        return ResponseEntity.ok(eventResource)
     }
 
     private fun badRequest(errors: Errors): ResponseEntity<Any> {
