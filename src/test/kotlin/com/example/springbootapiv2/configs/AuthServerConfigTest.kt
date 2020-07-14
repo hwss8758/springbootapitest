@@ -32,7 +32,7 @@ class AuthServerConfigTest : BaseControllerTest() {
     @TestDescription("인증 토큰을 발급 받는 테스트")
     fun getAuthToken() {
 
-        // test전 메모리 DB clear 
+        // test전 메모리 DB clear
         accountRepository.deleteAll()
         eventRepository.deleteAll()
 
