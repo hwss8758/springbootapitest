@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 
-
 @SpringBootTest
 @AutoConfigureMockMvc // springBootTest 어노테이션을 쓰면서 MockMvc를 사용하려고 하면 @AutoConfigureMockMvc를 사용하야한다.
 @AutoConfigureRestDocs // springRestDocs를 사용하기 위한 어노테이션

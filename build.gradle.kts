@@ -48,6 +48,7 @@ dependencies {
     // Spring security
     // https://mvnrepository.com/artifact/org.springframework.security.oauth.boot/spring-security-oauth2-autoconfigure
     implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.3.1.RELEASE")
+    implementation("org.springframework.security:spring-security-test") // spring security test
 }
 
 tasks.withType<Test> {
