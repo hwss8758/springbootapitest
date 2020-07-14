@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 
@@ -15,6 +16,14 @@ class AccountService : UserDetailsService {
 
     @Autowired
     lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
+
+    fun saveAccount(account: Accounts): Accounts {
+        account.password = passwordEncoder.encode(account.password)
+        return accountRepository.save(account)
+    }
 
     override fun loadUserByUsername(username: String?): UserDetails {
         // if (null != obj) ...을 대체하기 위해서 safe Call(?)과 함께 let() 함수를 사용

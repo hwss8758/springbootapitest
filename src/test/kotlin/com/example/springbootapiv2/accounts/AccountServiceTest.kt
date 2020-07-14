@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -18,6 +19,9 @@ class AccountServiceTest {
     @Autowired
     lateinit var accountRepository: AccountRepository
 
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
+
     @Test
     fun findByUsernameTest() {
         val inPassword: String = "wonsang"
@@ -28,14 +32,14 @@ class AccountServiceTest {
                 password = inPassword,
                 roles = setOf(AccountRole.ADMIN, AccountRole.USER))
 
-        accountRepository.save(account)
+        accountService.saveAccount(account)
 
         // when
         val userDetailsService: UserDetailsService = accountService
         val userDetails: UserDetails = userDetailsService.loadUserByUsername(inEmail)
 
         // then
-        assertThat(userDetails.password).isEqualTo(inPassword)
+        assertThat(passwordEncoder.matches(inPassword, userDetails.password)).isTrue()
     }
 
 }
