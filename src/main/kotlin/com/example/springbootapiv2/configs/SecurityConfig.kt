@@ -53,14 +53,14 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 //                ?.requestMatchers(PathRequest.toStaticResources().atCommonLocations())?.anonymous()
 //    }
 
-    override fun configure(http: HttpSecurity?) {
-        http?.anonymous()
-                ?.and()
-                ?.formLogin()
-                ?.and()
-                ?.authorizeRequests()
-                ?.mvcMatchers(HttpMethod.GET, "/api/**")?.authenticated()
-                ?.anyRequest()
-                ?.authenticated()
-    }
+//    override fun configure(http: HttpSecurity?) {
+//        http?.anonymous()
+//                ?.and()
+//                ?.formLogin()
+//                ?.and()
+//                ?.authorizeRequests()
+//                ?.mvcMatchers(HttpMethod.GET, "/api/**")?.authenticated()
+//                ?.anyRequest()
+//                ?.authenticated()
+//    }
 }

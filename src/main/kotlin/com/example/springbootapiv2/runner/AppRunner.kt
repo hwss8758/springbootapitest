@@ -1,4 +1,4 @@
-package com.example.springbootapiv2.configs
+package com.example.springbootapiv2.runner
 
 import com.example.springbootapiv2.accounts.AccountRole
 import com.example.springbootapiv2.accounts.AccountService
