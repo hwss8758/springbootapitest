@@ -4,6 +4,7 @@ import com.example.springbootapiv2.accounts.AccountRepository
 import com.example.springbootapiv2.accounts.AccountRole
 import com.example.springbootapiv2.accounts.AccountService
 import com.example.springbootapiv2.accounts.Accounts
+import com.example.springbootapiv2.common.AppProperties
 import com.example.springbootapiv2.common.BaseControllerTest
 import com.example.springbootapiv2.common.TestDescription
 import com.example.springbootapiv2.events.EventRepository
@@ -28,6 +29,9 @@ class AuthServerConfigTest : BaseControllerTest() {
     @Autowired
     lateinit var eventRepository: EventRepository
 
+    @Autowired
+    lateinit var appProperties: AppProperties
+
     @Test
     @TestDescription("인증 토큰을 발급 받는 테스트")
     fun getAuthToken() {
@@ -36,8 +40,8 @@ class AuthServerConfigTest : BaseControllerTest() {
         accountRepository.deleteAll()
         eventRepository.deleteAll()
 
-        val username: String = "hwss8758@aaa.com"
-        val password: String = "wonsang"
+        val username: String = appProperties.userUsername
+        val password: String = appProperties.userPassword
 
         // given
         val account: Accounts = Accounts(email = username,
@@ -46,8 +50,8 @@ class AuthServerConfigTest : BaseControllerTest() {
 
         accountService.saveAccount(account)
 
-        val clientId: String = "myApp"
-        val clientSecret: String = "pass"
+        val clientId: String = appProperties.clientId
+        val clientSecret: String = appProperties.clientSecret
 
         mockMvc.perform(post("/oauth/token")
                 .with(httpBasic(clientId, clientSecret))

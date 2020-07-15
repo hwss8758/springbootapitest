@@ -4,6 +4,7 @@ import com.example.springbootapiv2.accounts.AccountRepository
 import com.example.springbootapiv2.accounts.AccountRole
 import com.example.springbootapiv2.accounts.AccountService
 import com.example.springbootapiv2.accounts.Accounts
+import com.example.springbootapiv2.common.AppProperties
 import com.example.springbootapiv2.common.BaseControllerTest
 import com.example.springbootapiv2.common.TestDescription
 import org.aspectj.lang.annotation.Before
@@ -38,6 +39,9 @@ class EventControllerTests : BaseControllerTest() {
 
     @Autowired
     lateinit var accountService: AccountService
+
+    @Autowired
+    lateinit var appProperties: AppProperties
 
     @Test
     @TestDescription("정상동작 테스트")
@@ -148,8 +152,8 @@ class EventControllerTests : BaseControllerTest() {
 
     private fun getAccessToken(): String {
 
-        val username: String = "hwss8758@aaa.com"
-        val password: String = "wonsang"
+        val username: String = appProperties.userUsername
+        val password: String = appProperties.userPassword
 
         // given
         val account: Accounts = Accounts(email = username,
@@ -158,8 +162,8 @@ class EventControllerTests : BaseControllerTest() {
 
         accountService.saveAccount(account)
 
-        val clientId: String = "myApp"
-        val clientSecret: String = "pass"
+        val clientId: String = appProperties.clientId
+        val clientSecret: String = appProperties.clientSecret
 
         val perform = mockMvc.perform(post("/oauth/token")
                 .with(SecurityMockMvcRequestPostProcessors.httpBasic(clientId, clientSecret))
@@ -299,7 +303,7 @@ class EventControllerTests : BaseControllerTest() {
 
         this.eventRepository.deleteAll();
         this.accountRepository.deleteAll();
-        
+
         //given
         val eventName = "Updated Event"
         val event: Event = generateEvent(200)

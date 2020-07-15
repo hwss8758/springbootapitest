@@ -7,6 +7,7 @@ data class Accounts(
         @Id
         @GeneratedValue
         val id: Int? = null,
+        @Column(unique = true)
         val email: String = "",
         var password: String = "",
         // 하나의 enum만 있는게 아니라 여러가지 enum이 있을수 있음으로 @ElementCollection 사용

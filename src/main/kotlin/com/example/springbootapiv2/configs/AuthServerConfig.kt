@@ -1,6 +1,7 @@
 package com.example.springbootapiv2.configs
 
 import com.example.springbootapiv2.accounts.AccountService
+import com.example.springbootapiv2.common.AppProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -28,16 +29,19 @@ class AuthServerConfig : AuthorizationServerConfigurerAdapter() {
     @Autowired
     lateinit var accountService: AccountService
 
+    @Autowired
+    lateinit var appProperties: AppProperties
+
     override fun configure(security: AuthorizationServerSecurityConfigurer?) {
         security?.passwordEncoder(passwordEncoder)
     }
 
     override fun configure(clients: ClientDetailsServiceConfigurer?) {
         clients?.inMemory()
-                ?.withClient("myApp")
+                ?.withClient(appProperties.clientId)
                 ?.authorizedGrantTypes("password", "refresh_token")
                 ?.scopes("read", "write")
-                ?.secret(passwordEncoder.encode("pass"))
+                ?.secret(passwordEncoder.encode(appProperties.clientSecret))
                 ?.accessTokenValiditySeconds(10 * 60)
                 ?.refreshTokenValiditySeconds(6 * 10 * 60)
     }
