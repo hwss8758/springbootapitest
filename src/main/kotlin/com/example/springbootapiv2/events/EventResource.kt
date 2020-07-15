@@ -12,7 +12,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 // RepresentationModel 상속에서 EntityModel 상속으로 변경
 class EventResource(@JsonUnwrapped var event: Event, vararg links: Link?) : EntityModel<Event>() {
     init {
-        add(WebMvcLinkBuilder.linkTo(IndexController::class.java)
+        add(WebMvcLinkBuilder.linkTo(EventController::class.java)
                 .slash("api")
                 .slash("events")
                 .slash(event.id)

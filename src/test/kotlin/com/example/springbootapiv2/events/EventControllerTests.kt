@@ -8,6 +8,7 @@ import com.example.springbootapiv2.common.AppProperties
 import com.example.springbootapiv2.common.BaseControllerTest
 import com.example.springbootapiv2.common.TestDescription
 import org.aspectj.lang.annotation.Before
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.MediaTypes
@@ -43,12 +44,15 @@ class EventControllerTests : BaseControllerTest() {
     @Autowired
     lateinit var appProperties: AppProperties
 
+    @BeforeEach
+    fun setup() {
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+    }
+
     @Test
     @TestDescription("정상동작 테스트")
     fun createEvent() {
-
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
 
         var eventDto: EventDto = EventDto(name = "spring",
                 description = "REST API Development with Spring",
@@ -185,9 +189,6 @@ class EventControllerTests : BaseControllerTest() {
     @TestDescription("event class 사용하여 입력할 경우 에러 확인")
     fun createEventBadRequest() {
 
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
-
         var event: Event = Event(name = "spring",
                 description = "REST API Development with Spring",
                 beginEnrollmentDateTime = LocalDateTime.of(2018, 11, 23, 14, 21),
@@ -215,9 +216,6 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("eventDto class 프로퍼티 검증 테스")
     fun createEvent_Bad_Request_Wrong_Input() {
-
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
 
         var eventDto: EventDto = EventDto(name = "spring",
                 description = "REST API Development with Spring",
@@ -249,9 +247,6 @@ class EventControllerTests : BaseControllerTest() {
     @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     fun queryEventTest() {
 
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
-
         IntStream.range(0, 30).forEach {
             generateEvent(it)
         }
@@ -272,9 +267,6 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     fun queryEventAuthenticationTest() {
-
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
 
         IntStream.range(0, 30).forEach {
             generateEvent(it)
@@ -299,9 +291,6 @@ class EventControllerTests : BaseControllerTest() {
     @TestDescription("기존의 Event 하나 조회하기")
     fun getEventTest() {
 
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
-
         //Given
         val event = generateEvent(100)
 
@@ -319,9 +308,6 @@ class EventControllerTests : BaseControllerTest() {
     @TestDescription("없는 Event 하나 조회하여 404 응답받기")
     fun getEventTest404() {
 
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
-
         //when&then
         mockMvc.perform(get("/api/events/1188"))
                 .andExpect(status().isNotFound)
@@ -330,9 +316,6 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("이벤트를 정상적으로 수정하기")
     fun updateEventTest() {
-
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
 
         //given
         val eventName = "Updated Event"
@@ -360,9 +343,6 @@ class EventControllerTests : BaseControllerTest() {
     @TestDescription("입력값이 잘못된 경우 이벤트 수정 실패")
     fun updateEventErrorTest() {
 
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
-
         //given
         val eventName = "Updated Event"
         val event: Event = generateEvent(200)
@@ -384,9 +364,6 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("존재하지 않는 이벤트 수정 실패")
     fun updateEventErrorTest404() {
-
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
 
         //given
         val eventName = "Updated Event"

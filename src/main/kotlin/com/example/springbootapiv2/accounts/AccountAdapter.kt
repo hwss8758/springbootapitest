@@ -14,7 +14,6 @@ class AccountAdapter(_account: Accounts) : User(_account.email, _account.passwor
     }
 
     companion object {
-//        private const val serialVersionUID = 3302633873473336903L
         private fun authorities(roles: Set<AccountRole>): Collection<GrantedAuthority?> {
             return roles.stream()
                     .map { r: AccountRole -> SimpleGrantedAuthority("ROLE_" + r.name) }
