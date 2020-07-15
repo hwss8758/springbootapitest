@@ -1,6 +1,8 @@
 package com.example.springbootapiv2.events
 
+import com.example.springbootapiv2.accounts.AccountSerializer
 import com.example.springbootapiv2.accounts.Accounts
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -24,6 +26,7 @@ data class Event(
         @Enumerated(EnumType.STRING)
         var eventStatus: EventStatus = EventStatus.DRAFT,
         @ManyToOne
+        @JsonSerialize(using = AccountSerializer::class)
         var manager: Accounts? = null) {
     override fun hashCode(): Int {
         return id!!
