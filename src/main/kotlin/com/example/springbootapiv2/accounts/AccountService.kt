@@ -28,8 +28,12 @@ class AccountService : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails {
         // if (null != obj) ...을 대체하기 위해서 safe Call(?)과 함께 let() 함수를 사용
         // val accounts: Accounts = accountRepository.findByEmail(username)
+
         val accounts: Accounts? = username?.let { accountRepository.findByEmail(it) }
-        return User(accounts?.email, accounts?.password, accounts?.roles?.let { authorities(it) })
+        // AccountAdapter가 만들어져서 아래 코드 주석 코드 새로 작성
+        //return User(accounts?.email, accounts?.password, accounts?.roles?.let { authorities(it) })
+
+        return AccountAdapter(accounts!!)
     }
 
     private fun authorities(roles: Set<AccountRole>): MutableCollection<out GrantedAuthority>? {

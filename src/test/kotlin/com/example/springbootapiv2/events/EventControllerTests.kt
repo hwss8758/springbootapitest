@@ -122,6 +122,10 @@ class EventControllerTests : BaseControllerTest() {
                                 fieldWithPath("free").description("free or not"),
                                 fieldWithPath("offline").description("offline or not"),
                                 fieldWithPath("eventStatus").description("event status"),
+                                fieldWithPath("manager.id").description("manager id"),
+                                fieldWithPath("manager.email").description("manager email"),
+                                fieldWithPath("manager.password").description("manager password"),
+                                fieldWithPath("manager.roles").description("manager roles"),
                                 fieldWithPath("_links.self.href").description("link to self"),
                                 fieldWithPath("_links.query-events.href").description("link to query event list"),
                                 fieldWithPath("_links.update-event.href").description("link to update event list"),
@@ -262,6 +266,32 @@ class EventControllerTests : BaseControllerTest() {
                 .andExpect(jsonPath("_embedded.eventResourcePagedList[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("query-events"))
+    }
+
+    @Test
+    @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    fun queryEventAuthenticationTest() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+
+        IntStream.range(0, 30).forEach {
+            generateEvent(it)
+        }
+
+        mockMvc.perform(get("/api/events")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + getAccessToken())
+                .param("page", "1")
+                .param("size", "10")
+                .param("sort", "id,DESC"))
+                .andDo(print())
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("_embedded.eventResourcePagedList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links.create-event").exists())
                 .andDo(document("query-events"))
     }
 

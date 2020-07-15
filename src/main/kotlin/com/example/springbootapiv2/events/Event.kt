@@ -24,7 +24,7 @@ data class Event(
         @Enumerated(EnumType.STRING)
         var eventStatus: EventStatus = EventStatus.DRAFT,
         @ManyToOne
-        private var manager: Accounts? = null) {
+        var manager: Accounts? = null) {
     override fun hashCode(): Int {
         return id!!
     }
