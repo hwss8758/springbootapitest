@@ -1,5 +1,6 @@
 package com.example.springbootapiv2.accounts
 
+import com.example.springbootapiv2.common.AppProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,15 +18,15 @@ class AccountServiceTest {
     lateinit var accountService: AccountService
 
     @Autowired
-    lateinit var accountRepository: AccountRepository
+    lateinit var passwordEncoder: PasswordEncoder
 
     @Autowired
-    lateinit var passwordEncoder: PasswordEncoder
+    lateinit var appProperties: AppProperties
 
     @Test
     fun findByUsernameTest() {
-        val inPassword: String = "wonsang"
-        val inEmail: String = "hwss8758@aaa.com"
+        val inPassword: String = appProperties.userUsername
+        val inEmail: String = appProperties.userPassword
 
         // given
         val account: Accounts = Accounts(email = inEmail,
