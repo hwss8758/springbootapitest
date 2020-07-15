@@ -1,7 +1,12 @@
 package com.example.springbootapiv2.events
 
+import com.example.springbootapiv2.accounts.AccountRepository
+import com.example.springbootapiv2.accounts.AccountRole
+import com.example.springbootapiv2.accounts.AccountService
+import com.example.springbootapiv2.accounts.Accounts
 import com.example.springbootapiv2.common.BaseControllerTest
 import com.example.springbootapiv2.common.TestDescription
+import org.aspectj.lang.annotation.Before
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.MediaTypes
@@ -13,6 +18,9 @@ import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.security.oauth2.common.util.Jackson2JsonParser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+import org.springframework.test.context.event.annotation.BeforeTestMethod
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
@@ -25,9 +33,18 @@ class EventControllerTests : BaseControllerTest() {
     @Autowired
     lateinit var eventRepository: EventRepository
 
+    @Autowired
+    lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    lateinit var accountService: AccountService
+
     @Test
     @TestDescription("정상동작 테스트")
     fun createEvent() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
 
         var eventDto: EventDto = EventDto(name = "spring",
                 description = "REST API Development with Spring",
@@ -41,6 +58,7 @@ class EventControllerTests : BaseControllerTest() {
                 location = "강남역 D2 스타텁 팩토리")
 
         mockMvc.perform(post("/api/events")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(eventDto)))
@@ -128,9 +146,39 @@ class EventControllerTests : BaseControllerTest() {
                 )
     }
 
+    private fun getAccessToken(): String {
+
+        val username: String = "hwss8758@aaa.com"
+        val password: String = "wonsang"
+
+        // given
+        val account: Accounts = Accounts(email = username,
+                password = password,
+                roles = setOf(AccountRole.ADMIN, AccountRole.USER))
+
+        accountService.saveAccount(account)
+
+        val clientId: String = "myApp"
+        val clientSecret: String = "pass"
+
+        val perform = mockMvc.perform(post("/oauth/token")
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(clientId, clientSecret))
+                .param("username", username)
+                .param("password", password)
+                .param("grant_type", "password"))
+
+        val responseBody = perform.andReturn().response.getContentAsString()
+        val parser = Jackson2JsonParser()
+
+        return parser.parseMap(responseBody).get("access_token").toString()
+    }
+
     @Test
     @TestDescription("event class 사용하여 입력할 경우 에러 확인")
     fun createEventBadRequest() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
 
         var event: Event = Event(name = "spring",
                 description = "REST API Development with Spring",
@@ -148,6 +196,7 @@ class EventControllerTests : BaseControllerTest() {
                 eventStatus = EventStatus.PUBLISHED)
 
         mockMvc.perform(post("/api/events")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(event)))
@@ -158,6 +207,9 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("eventDto class 프로퍼티 검증 테스")
     fun createEvent_Bad_Request_Wrong_Input() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
 
         var eventDto: EventDto = EventDto(name = "spring",
                 description = "REST API Development with Spring",
@@ -171,6 +223,7 @@ class EventControllerTests : BaseControllerTest() {
                 location = "강남역 D2 스타텁 팩토리")
 
         mockMvc.perform(post("/api/events")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(eventDto)))
@@ -187,6 +240,10 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     fun queryEventTest() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+
         IntStream.range(0, 30).forEach {
             generateEvent(it)
         }
@@ -207,6 +264,10 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("기존의 Event 하나 조회하기")
     fun getEventTest() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+
         //Given
         val event = generateEvent(100)
 
@@ -224,6 +285,9 @@ class EventControllerTests : BaseControllerTest() {
     @TestDescription("없는 Event 하나 조회하여 404 응답받기")
     fun getEventTest404() {
 
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+
         //when&then
         mockMvc.perform(get("/api/events/1188"))
                 .andExpect(status().isNotFound)
@@ -232,15 +296,22 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("이벤트를 정상적으로 수정하기")
     fun updateEventTest() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+        
         //given
         val eventName = "Updated Event"
         val event: Event = generateEvent(200)
-        println("check event : " + event)
         val eventDto: EventDto = modelMapper.map(event, EventDto::class.java)
         eventDto.name = eventName
 
+        println("*** check event : " + event)
+        println("*** check eventDto : " + eventDto)
+
         //when & then
         mockMvc.perform(put("/api/events/{id}", event.id)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(eventDto)))
@@ -254,6 +325,10 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("입력값이 잘못된 경우 이벤트 수정 실패")
     fun updateEventErrorTest() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+
         //given
         val eventName = "Updated Event"
         val event: Event = generateEvent(200)
@@ -264,6 +339,7 @@ class EventControllerTests : BaseControllerTest() {
 
         //when & then
         mockMvc.perform(put("/api/events/{id}", event.id)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(eventDto)))
@@ -274,6 +350,10 @@ class EventControllerTests : BaseControllerTest() {
     @Test
     @TestDescription("존재하지 않는 이벤트 수정 실패")
     fun updateEventErrorTest404() {
+
+        this.eventRepository.deleteAll();
+        this.accountRepository.deleteAll();
+
         //given
         val eventName = "Updated Event"
         val event: Event = generateEvent(200)
@@ -282,6 +362,7 @@ class EventControllerTests : BaseControllerTest() {
 
         //when & then
         mockMvc.perform(put("/api/events/1123122")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(eventDto)))

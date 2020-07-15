@@ -101,6 +101,7 @@ class EventController {
                     @RequestBody @Validated eventDto: EventDto,
                     errors: Errors): ResponseEntity<Any> {
         val optionalEvent: Optional<Event> = eventRepository.findById(id)
+
         if (!optionalEvent.isPresent) {
             return ResponseEntity.notFound().build()
         }
