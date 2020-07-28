@@ -178,9 +178,11 @@ class EventControllerTests : BaseControllerTest() {
                 .param("username", username)
                 .param("password", password)
                 .param("grant_type", "password"))
-
+        println("perform:"+perform)
         val responseBody = perform.andReturn().response.getContentAsString()
+        println("responseBody:"+responseBody)
         val parser = Jackson2JsonParser()
+        println("parser:"+parser)
 
         return parser.parseMap(responseBody).get("access_token").toString()
     }
